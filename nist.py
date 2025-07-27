@@ -49,9 +49,7 @@ def get_search_nist_NERDm_records(searchphrase: str):
 	"""
 	try:
 		api_url = "https://data.nist.gov/rmm/records"
-		params = {
-			"searchphrase": searchphrase,
-		}
+		params = {"searchphrase": searchphrase}
 		response = httpx.get(api_url, params = params)
 		response.raise_for_status()
 		json_data = response.json()
@@ -82,6 +80,35 @@ def get_search_nist_NERDm_records(searchphrase: str):
 			"returned_results": len(filtered_results),
 			"results": filtered_results
 		}
+	except httpx.RequestError as exc:
+		return f"An error occurred while requesting the NIST API: {exc}"
+	except httpx.HTTPStatusError as exc:
+		return f"Error response {exc.response.status_code} while requesting the NIST API: {exc.response.text}"
+
+@mcp.tool()
+def get_nist_record_id(id: str):
+	"""
+	Retrieves the NIST NERDm record of a given id.
+
+	Args:
+		id: The given id for retrieval of record
+	
+	Returns:
+		Returns record of the given id
+	"""
+	try:
+		api_url = "https://data.nist.gov/rmm/records/"
+		response = httpx.get(api_url + id)
+		response.raise_for_status()
+		json_data = response.json()
+		return json_data
+	except httpx.HTTPStatusError as e:
+		if e.response.status_code == 404:
+			print(f"Record with ID '{id}' not found")
+			return None
+		else:
+			print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
+			raise
 	except httpx.RequestError as exc:
 		return f"An error occurred while requesting the NIST API: {exc}"
 	except httpx.HTTPStatusError as exc:
