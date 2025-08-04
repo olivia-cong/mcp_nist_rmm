@@ -84,6 +84,22 @@ def get_search_nist_NERDm_records(searchphrase: str):
 		return f"An error occurred while requesting the NIST API: {exc}"
 	except httpx.HTTPStatusError as exc:
 		return f"Error response {exc.response.status_code} while requesting the NIST API: {exc.response.text}"
+	
+@mcp.tool()
+def get_all_resource_API():
+	"""
+	This will return all the other Resource APIs available at NIST.
+	"""
+	try:
+		api_url = "https://data.nist.gov/rmm/resourceApi"
+		response = httpx.get(api_url)
+		response.raise_for_status()
+		json_data = response.json()
+		return json_data
+	except httpx.RequestError as exc:
+		return f"An error occurred while requesting the NIST API: {exc}"
+	except httpx.HTTPStatusError as exc:
+		return f"Error response {exc.response.status_code} while requesting the NIST API: {exc.response.text}" 
 
 @mcp.tool()
 def get_nist_record_id(id: str):
